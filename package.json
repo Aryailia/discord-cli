@@ -9,6 +9,7 @@
   "author": "Aryailia",
   "license": "GPL-3.0",
   "dependencies": {
-    "blessed": "^0.1.81"
+    "blessed": "^0.1.81",
+    "discord.js": "^11.2.1"
   }
 }
