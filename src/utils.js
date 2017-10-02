@@ -1,4 +1,8 @@
-module.exports = {
+const Fs = require('fs');
+
+
+
+const Utils = {
   /**
    * @param {object} obj
    * @param {object} mixins
@@ -25,4 +29,30 @@ module.exports = {
       settings[key] = toAdd[key];
     });
   },
+
+  stringify: function (value, depthDecr, arrayMaxLength) {
+  },
+
+  log: function (message) {
+    //console.log(message);
+    const sanitizedMessage = (typeof message === 'object')
+      ? JSON.parse(Utils.stringify(message, 2))
+      : message;
+    console.log(sanitizedMessage);
+    const filename = './private/log.txt';
+    const limit = 512;
+
+    (new Promise(function (resolve, reject) {
+      Fs.readFile(filename, function (err, data) {
+        resolve(err ? err : data.toString());
+      })
+    })).then(function (oldLog) {
+      const newLog = oldLog + '\n' + message;
+      const buffer = newLog.substr(Math.max(newLog.length - limit, 0), limit);
+      Fs.writeFile(filename, buffer);
+    });
+  },
 };
+
+
+module.exports = Utils;

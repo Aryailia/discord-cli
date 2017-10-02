@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "logger": "nodemon test/logger.js -w private/log.txt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aryailia",
@@ -11,5 +12,8 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "discord.js": "^11.2.1"
+  },
+  "devDependencies": {
+    "fsmonitor": "^0.2.4"
   }
 }

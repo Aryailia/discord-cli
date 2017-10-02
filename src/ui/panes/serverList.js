@@ -7,7 +7,7 @@ const settings = {
   left: 0,
   height: '100%',
   width: '100%',
-  content: 'Hello {bold}title{/bold}!',
+  content: 'Hello {bold}servers{/bold}!',
   tags: true,
   padding: 0,
   scrollbar: true,
@@ -27,16 +27,14 @@ const settings = {
 
 const mixin = {
   appendTo: function (privates, pane) {
-    pane.append(privates.title);
+    pane.append(privates.window);
   },
 };
 
-function server(screen, client, pane) {
-  //const toAdd = { parent: pane };
+function server(client) {
   const privates = {
-    screen: screen,
     client: client,
-    title: Blessed.text(settings),
+    window: Blessed.text(settings),
   };
 
   return utils.mix(Object.create(null), mixin, [privates]);

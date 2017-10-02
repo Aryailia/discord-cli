@@ -29,13 +29,14 @@ const settings = {
 
 const mixin = {
   appendTo: function (privates, pane) {
-    pane.append(privates.input);
+    pane.append(privates.box);
   },
 };
 
 module.exports = function channels(client) {
   const privates = {
-    input: Blessed.text(settings),
+    client: client,
+    box: Blessed.text(settings),
   };
   return utils.mix(Object.create(null), mixin, [privates]);
 };

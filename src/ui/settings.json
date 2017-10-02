@@ -3,7 +3,23 @@
   "input_height": 3,
   "userList_width": 10,
   "channelList": {
-    "width": 16
+    "left": 0, "top": 0, "width": 16,"height": -1
   },
-  "bleh": 1  
+  "serverList": {
+    "left": 0, "top": 0, "width": 8,"height": -1
+  },
+  "inputMethod": {
+    "left": 0, "top": 0, "width": -1,"height": 3
+  },
+  "title": {
+    "left": 0, "top": -1, "width": -1,"height": 1
+  },
+  "chat": {
+    "left": 0, "top": 0, "width": 10,"height": -1
+  },
+  "userList": {
+    "left": 0, "top": 0, "width": 10,"height": -1
+  },
+
+  "lazydontwantoaddcommas": 1  
 }
