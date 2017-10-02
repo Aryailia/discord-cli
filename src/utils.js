@@ -1,6 +1,22 @@
 const Fs = require('fs');
+const config = require('../private/login.json');
+const LOG_SIZE = config.logSize;
+const LOG_PATH = config.logPath;  //'./private/log.txt';
 
-
+/**
+ * Indents <sourceStr> by depth-times number of indents
+ * Not done functionally cause low level
+ * @param {string} sourceStr 
+ * @param {number} depth 
+ */
+function prepad(sourceStr, depth) {
+  var strList = Array(depth + 1);
+  strList[depth] = sourceStr;
+  for (let i = 0; i < depth; ++i) {
+    strList[i] = "  "; // Two spaces for indent
+  }
+  return strList.join('');
+}
 
 const Utils = {
   /**
@@ -30,29 +46,56 @@ const Utils = {
     });
   },
 
-  stringify: function (value, depthDecr, arrayMaxLength) {
+  /**
+   * Converts anything it's passed into a string
+   * Allows caller to set how deep into an object-type object this should explore
+   * @param {*} toStringify Target to process into a string
+   * @param {number} depth Zero is just keys/facevalue, goes up to <depth>-inclusive
+   * @returns {string}
+   */
+  stringify: function (toStringify, depth) {
+    function recurse(obj, level) {
+      if (level > depth) {
+        return '--snipped--'; // Snip if gone too deep 
+      } else {
+        return(typeof obj === 'object' && obj !== null
+          // Print out the object in three parts: '{', key-value, '}'
+          ? '{\n' + Object.keys(obj).map(function (key) {
+              const value = recurse(obj[key], level + 1);
+              return prepad(`${key}: ${value}`, level + 1);
+            }).join(',\n') + '\n'
+            + prepad('}', level)
+
+          // Otherwise just regular string conversion
+          : '' + obj
+        );
+      }
+    }  
+
+    if (typeof depth !== 'number') {
+      throw new SyntaxError('stringify - <depth> must be a number');
+    } else {
+      return recurse(toStringify, 0);
+    }
   },
 
-  log: function (message) {
-    //console.log(message);
-    const sanitizedMessage = (typeof message === 'object')
-      ? JSON.parse(Utils.stringify(message, 2))
-      : message;
-    console.log(sanitizedMessage);
-    const filename = './private/log.txt';
-    const limit = 512;
-
+  /**
+   * Logs <message> to the log file specified in the private settings
+   * Intended for use by test/logger.js .  Limits the size of the log
+   * @param {*} message Message to log into log file
+   * @param {number} [depth=2] How deep to expand <message>
+   */
+  log: function (message, depth = 2) {
     (new Promise(function (resolve, reject) {
-      Fs.readFile(filename, function (err, data) {
+      Fs.readFile(LOG_PATH, function (err, data) {
         resolve(err ? err : data.toString());
       })
     })).then(function (oldLog) {
-      const newLog = oldLog + '\n' + message;
-      const buffer = newLog.substr(Math.max(newLog.length - limit, 0), limit);
-      Fs.writeFile(filename, buffer);
+      const newLog = oldLog + '\n' + Utils.stringify(message, depth);
+      const buffer = newLog.substr(Math.max(newLog.length - LOG_SIZE, 0), LOG_SIZE);
+      Fs.writeFile(LOG_PATH, buffer);
     });
   },
 };
-
 
 module.exports = Utils;

@@ -39,16 +39,13 @@ client.on('ready', function () {
 });
 
 client.on('message', function (msg) {
-  Utils.log(msg);
-  //console.log(JSON.stringify(msg));
+  Utils.log(msg, 1);
   //ui.chat.message(Object.keys(msg).join(' '));
   //screen.render();
   
   //process.exit(0);
   //console.log(msg.content);
 });
-
-//Utils.log();
 
 //client.login(secureEmail(login.email, login.password));
 
