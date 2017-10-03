@@ -14,7 +14,7 @@ function secureEmail(email, password) {
 const client = new Discord.Client();
 
 // Create a screen object.
-/*var screen = Blessed.screen({
+const screen = Blessed.screen({
   smartCSR: true,
   cursor: {
     blink: true,
@@ -30,21 +30,34 @@ const ui = cli.init(screen, client);
 screen.key(['C-q', 'C-c'], function(ch, key) {
   return process.exit(0);
 });
-*/
+
 // Render the screen.
-//screen.render();
+screen.render();
 
 client.on('ready', function () {
 //  console.log('Logged in as ${client.user.tag}!');
+  /*client.guilds.map(function (value, key) {
+    //Utils.log(value.name, 0);
+    //console.error(value.name);
+    Utils.log(value.name, 0);
+  });*/
+  ui.serverList.populate(client.guilds);
+  screen.render();
+  //console.log(client.guilds);
+  //console.log(Object.getOwnPropertyNames(client.guilds));
+  //console.log(Utils.stringify(client.guilds['_keyArray'], 2));
 });
 
+const state = {
+  guildId: '',
+  channelId: '320484682963746817',
+};
+
 client.on('message', function (msg) {
-  Utils.log(msg, 1);
-  //ui.chat.message(Object.keys(msg).join(' '));
-  //screen.render();
-  
-  //process.exit(0);
-  //console.log(msg.content);
+  if (msg.channel.id === state.channelId) {
+    ui.chat.message(msg);
+    //screen.render();
+  }
 });
 
 //client.login(secureEmail(login.email, login.password));

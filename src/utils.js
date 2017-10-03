@@ -56,7 +56,7 @@ const Utils = {
   stringify: function (toStringify, depth) {
     function recurse(obj, level) {
       if (level > depth) {
-        return '--snipped--'; // Snip if gone too deep 
+        return '-snip-'; // Snip if gone too deep 
       } else {
         return(typeof obj === 'object' && obj !== null
           // Print out the object in three parts: '{', key-value, '}'
@@ -86,16 +86,42 @@ const Utils = {
    * @param {number} [depth=2] How deep to expand <message>
    */
   log: function (message, depth = 2) {
-    (new Promise(function (resolve, reject) {
-      Fs.readFile(LOG_PATH, function (err, data) {
-        resolve(err ? err : data.toString());
-      })
-    })).then(function (oldLog) {
-      const newLog = oldLog + '\n' + Utils.stringify(message, depth);
-      const buffer = newLog.substr(Math.max(newLog.length - LOG_SIZE, 0), LOG_SIZE);
-      Fs.writeFile(LOG_PATH, buffer);
-    });
+    LOG_BUFFER.push([message, depth]);
+    writeLog();
   },
 };
+
+let LOG_BUFFER = [];
+let LOG_FREE = true;
+function writeLog() {
+  if (LOG_FREE) {
+    LOG_FREE = false;
+    new Promise(function (resolve, reject) {
+      Fs.readFile(LOG_PATH, "utf8", function (err, data) {
+        const oldLog = err ? err : data;
+        const newLog = [oldLog].concat(LOG_BUFFER.map(function (entry) {
+          const unpacked = Utils.stringify(entry[0], entry[1]);
+          entry.length = 0; // Force deletion of the array
+          return unpacked;
+        })).join('\n');
+        LOG_BUFFER = []; // Garbage collect all the arrays
+        resolve(newLog);
+      })
+    }).then(function (text) {   
+      const buffer = text.substr(Math.max(text.length - LOG_SIZE - 1, 0), LOG_SIZE);
+      Fs.writeFile(LOG_PATH, buffer, function (err) {
+        if (LOG_BUFFER.length > 0) {
+          writeLog();
+        }
+        LOG_FREE = true;
+      });
+
+    }).catch(function (err) {
+      LOG_FREE = true; // reset log file's lock
+      console.error(err); // give the error in STDERR
+    });
+  }
+}
+
 
 module.exports = Utils;

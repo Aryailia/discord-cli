@@ -14,20 +14,34 @@ const settings = {
   scrollable: true,
 
   style: {
-    fg: 'white',
-    //bg: 'magenta',
+    fg: 'black',
+    bg: 'white',
     border: {
       fg: '#f0f0f0'
     },
-    hover: {
-      bg: 'green'
-    }
   }
 };
 
 const mixin = {
   appendTo: function (privates, pane) {
     pane.append(privates.window);
+  },
+
+  populate: function (privates, serverList) {
+    let a = 1;
+    const str = serverList.map(function (server) {
+      //Utils.log(value.name, 0);
+      //console.error(value.name);
+      return server.name
+    }).join('\n\n');
+
+    privates.window.content = str;
+    //privates.window.render();
+/*    serverList.map(function (server) {
+      utils.log(server.name);
+//      utils.log(arguments);
+//      utils.log(a++);
+    });*/
   },
 };
 
