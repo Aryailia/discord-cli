@@ -1,5 +1,5 @@
 const Blessed = require('blessed');
-const utils = require('../../utils.js');
+const Utils = require('../../utils.js');
 const config = require('../settings.json');
 
 const settings = {
@@ -7,15 +7,17 @@ const settings = {
   left: 0,
   height: '100%',
   width: '100%',
-  content: 'Hello {bold}servers{/bold}!',
+  //content: 'Hello {bold}servers{/bold}!',
   tags: true,
   padding: 0,
-  scrollbar: true,
+  mouse: true,
+  scrollbar: { bg: 'blue' },
   scrollable: true,
+  keyboard: true,
 
   style: {
-    fg: 'black',
-    bg: 'white',
+    fg: 'white',
+    bg: 'black',
     border: {
       fg: '#f0f0f0'
     },
@@ -24,34 +26,33 @@ const settings = {
 
 const mixin = {
   appendTo: function (privates, pane) {
+    //privates.window.on('mousedown', function (mouse) {
+    //  Utils.log(mouse,2);
+    //});
     pane.append(privates.window);
   },
 
   populate: function (privates, serverList) {
-    let a = 1;
-    const str = serverList.map(function (server) {
-      //Utils.log(value.name, 0);
-      //console.error(value.name);
-      return server.name
-    }).join('\n\n');
+    privates.window.setItems(serverList.map(function (server) { return server.name }));
+  },
+};
 
-    privates.window.content = str;
-    //privates.window.render();
-/*    serverList.map(function (server) {
-      utils.log(server.name);
-//      utils.log(arguments);
-//      utils.log(a++);
-    });*/
+const events = {
+  select: function (event) {
+    Utils.log(event, 2);
   },
 };
 
 function server(client) {
   const privates = {
     client: client,
-    window: Blessed.text(settings),
+    window: Blessed.list(settings),
   };
 
-  return utils.mix(Object.create(null), mixin, [privates]);
+  privates.window.on('select', events.select);
+  privates.window.focus();
+
+  return Utils.mix(Object.create(null), mixin, [privates]);
 }
 
 module.exports = server;

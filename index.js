@@ -16,6 +16,7 @@ const client = new Discord.Client();
 // Create a screen object.
 const screen = Blessed.screen({
   smartCSR: true,
+  fullUnicode: true,
   cursor: {
     blink: true,
     shape: 'underline'
