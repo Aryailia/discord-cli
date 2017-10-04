@@ -27,7 +27,7 @@ const Utils = {
   mix: function (obj, mixins, privateVars) {
     Object.keys(mixins).forEach(function (key) {
       obj[key] = function (...args) {
-        mixins[key].apply(null, privateVars.concat(args));
+        return mixins[key].apply(null, privateVars.concat(args));
       };
     });
     return obj;
@@ -44,7 +44,57 @@ const Utils = {
     Object.keys(toAdd).forEach(function (key) {
       settings[key] = toAdd[key];
     });
+    return settings;
+  },  /**
+  * This assigns all the properties and symbols (if ES6+) of {source} to
+  * {target} up to {depth}
+  * 
+  * @example Shallow assign, depth < 1
+  * Compose.assign({a: 1, b: 2}, {b: [1,[2],3]}, 0) => {a: 1, b: []}
+  * 
+  * @example depth = 1
+  * Compose.assign({a: 1, b: 2}, {b: [1,[2],3]}, 1) => {a: 1, b: [1, [], 3]}
+  * 
+  * @example depth = 2
+  * Compose.assign({a: 1, b: 2}, {b: [1,[2],3]}, 1) => {a: 1, b: [1, [2], 3]}
+  * 
+  * @example
+  * Another important is to deep clone something, you can do:
+  * Compose.assign(objectToClone.constructor(), objectToClone, Math.INFINITY);
+  * 
+  * Note: Though it returns {target}, it also directly mutates {target}
+  * assigning properties and symbols
+  * Additionally this invokes .constructor() on children if they are objects
+  * 
+  * @param {object} target Object to assign values to
+  * @param {object} source Object from which to copy from
+  * @param {number} depth Depth to copy. Zero or less is a shallow copy
+  * @returns {object} target
+  */
+  assign: function (target, source, depth) {
+    var getSymbols = Object.getOwnPropertySymbols || false; // Only in ECMA6
+    var properties = Object.getOwnPropertyNames(source) // Array of properties
+      .concat(getSymbols ? getSymbols(source) : []); // and symbols
+    var index = -1;
+    var isDeeperCopy = depth != undefined && depth > 0;
+    var value, prop, temp, desc;
+
+    while (++index < properties.length) {
+      prop = properties[index];
+      temp = source[prop]; // temp != null tests both undefined and null
+      value = (temp != null && typeof temp === 'object')
+        ? (isDeeperCopy // Invoke constructor if possible children
+          ? Compose.assign(temp.constructor(), temp, depth - 1) // do clone
+          : temp.constructor()) // Do not clone children
+        : temp;
+      
+      desc = Object.getOwnPropertyDescriptor(source, prop);
+      desc.value = value;
+      Object.defineProperty(target, prop, desc);
+    }
+    return target;
   },
+
 
   /**
    * Converts anything it's passed into a string
