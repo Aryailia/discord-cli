@@ -10,6 +10,9 @@ You may wish to look up how to get your Discord token. (include links)
 
 # Developing
 
+[For using Blessed](https://gist.github.com/hawkins/5c05d077a5d15d95404c3bb56b2a81d7)
+* Input and switching focus is buggy when inputOnFocus is not set to true
+
 Since console.log interacts with blessed awkwardly and don't want to see entire log when piping, made a log function in private/Utils.js .
 * `console.error` dumps to terminal
 * To view this log, you can use `npm run logger` You will need nodemon installed for this. (Not currently in the dependencies)
